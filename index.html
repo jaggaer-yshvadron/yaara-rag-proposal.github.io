@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JAGGAER Elevator</title>
+  <style>
+    :root {
+      --p50:#eeedfe; --p100:#cecaf6; --p600:#5449b9; --p800:#3b347f;
+      --bg:#ffffff; --bg2:#f8f7f4; --bg3:#f0eee9;
+      --tx:#1e1d19; --tx2:#615f58; --tx3:#9b978d;
+      --bd:rgba(0,0,0,0.1); --bd2:rgba(0,0,0,0.18);
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:system-ui,-apple-system,sans-serif; background:var(--bg2); color:var(--tx); }
+    .nav { background:var(--bg); border-bottom:0.5px solid var(--bd2); padding:0 24px; display:flex; align-items:stretch; }
+    .nav-brand { display:flex; align-items:center; gap:10px; padding:14px 20px 14px 0; border-right:0.5px solid var(--bd); margin-right:8px; }
+    .nav-brand-mark { width:28px; height:28px; border-radius:8px; background:var(--p600); color:#fff; display:grid; place-items:center; font-size:12px; font-weight:700; }
+    .nav-brand strong { display:block; font-size:13px; }
+    .nav-brand span { display:block; font-size:11px; color:var(--tx2); }
+    .nav-links { display:flex; align-items:stretch; overflow-x:auto; }
+    .nav-link { display:flex; align-items:center; padding:0 14px; font-size:13px; color:var(--tx2); border-bottom:2px solid transparent; cursor:pointer; white-space:nowrap; min-height:56px; background:none; border-top:none; border-left:none; border-right:none; }
+    .nav-link.active, .nav-link:hover { color:var(--p600); border-bottom-color:var(--p600); font-weight:600; }
+    .toolbar { max-width:1100px; margin:0 auto; padding:14px 24px 0; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .toolbar label { font-size:12px; color:var(--tx2); }
+    .toolbar input { font-size:12px; }
+    .site-note { max-width:1100px; margin:0 auto; padding:8px 24px 0; font-size:12px; color:var(--tx2); }
+    .page { display:none; max-width:1100px; margin:0 auto; padding:28px 24px 40px; }
+    .page.active { display:block; }
+    .page-header { margin-bottom:24px; }
+    .breadcrumb { font-size:11px; color:var(--tx3); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+    .page-header h1 { font-size:22px; font-weight:700; letter-spacing:-0.03em; }
+    .page-header p { font-size:13px; color:var(--tx2); margin-top:5px; line-height:1.5; max-width:82ch; }
+    .stack { display:grid; gap:16px; }
+    .grid-2, .grid-3, .grid-4 { display:grid; gap:16px; }
+    .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .grid-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .card, .metric-card, .table-card, .media-card { background:var(--bg); border:0.5px solid var(--bd); border-radius:12px; }
+    .card, .table-card, .media-card { padding:18px; }
+    .metric-card { background:var(--bg3); padding:16px; text-align:center; }
+    .badge { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; padding:3px 8px; border-radius:5px; background:var(--p100); color:var(--p800); }
+    .metric-value { font-size:28px; font-weight:700; line-height:1; }
+    .metric-label { font-size:12px; color:var(--tx2); margin-top:5px; }
+    .card h3, .media-card h3, .table-card h3 { font-size:14px; font-weight:700; color:var(--tx); margin-top:10px; }
+    .card p, .table-card p, .media-card p { font-size:12px; color:var(--tx2); line-height:1.5; margin-top:6px; }
+    .table-card table { width:100%; border-collapse:collapse; margin-top:12px; font-size:13px; }
+    .table-card th { font-size:11px; text-transform:uppercase; letter-spacing:0.07em; color:var(--tx3); text-align:left; padding:8px 12px; border-bottom:0.5px solid var(--bd2); }
+    .table-card td { padding:9px 12px; border-bottom:0.5px solid var(--bd); vertical-align:top; }
+    .table-card tr:last-child td { border-bottom:none; }
+    .media-placeholder, .media-slot img, .media-slot video, .media-slot iframe { width:100%; min-height:240px; border-radius:10px; border:0.5px solid var(--bd); background:var(--bg3); }
+    .media-placeholder { display:flex; align-items:center; justify-content:center; color:var(--tx3); font-size:12px; text-align:center; padding:24px; }
+    @media (max-width:860px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns:1fr; }
+      .page, .toolbar, .site-note { padding-left:16px; padding-right:16px; }
+      .nav { padding:0 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <div class="nav-brand">
+      <div class="nav-brand-mark">JE</div>
+      <div>
+        <strong>JAGGAER Elevator</strong>
+        <span>Customer RAG + Agent Layer</span>
+      </div>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" data-page="home">Home</button>
+      <button class="nav-link" data-page="overview">Overview</button>
+      <button class="nav-link" data-page="outputs">Outputs</button>
+      <button class="nav-link" data-page="details">Details</button>
+      <button class="nav-link" data-page="impact">Business Impact</button>
+      <button class="nav-link" data-page="sitemap">Sitemap</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <label for="csv-upload">Optional: load a revised CSV exported from Excel</label>
+    <input id="csv-upload" type="file" accept=".csv,text/csv">
+  </div>
+  <div class="site-note">
+    Default content source: <code>content.csv</code>. You can edit that file directly in Excel and replace it later, or load a different exported CSV here for preview.
+  </div>
+
+  <main id="page-home" class="page active"></main>
+  <main id="page-overview" class="page"></main>
+  <main id="page-outputs" class="page"></main>
+  <main id="page-details" class="page"></main>
+  <main id="page-impact" class="page"></main>
+  <main id="page-sitemap" class="page"></main>
+
+  <script>
+    const pages = ["home", "overview", "outputs", "details", "impact", "sitemap"];
+    const embeddedCsv = `page,kind,slot,sort,badge,title,body,value,note,col1,col2,col3,col4,media_type,media_url,media_caption
+home,hero,hero,1,Leadership Proposal,JAGGAER Elevator: Customer RAG + Agent Layer,"JAGGAER Elevator is a practical AI layer that can sit on top of the systems and customer signals JAGGAER already has. It combines a customer-specific RAG with an agent layer that helps customer-facing teams move from fragmented information to the right next action, from implementation through renewal and expansion.",,,,,,,,,
+home,metric,metric,1,,,1188,Modeled hours saved per month,,,,,,,,
+home,metric,metric,2,,,Retention + Expansion,Primary business outcomes,,,,,,,,
+home,metric,metric,3,,,1 customer intelligence layer,Single source of truth per customer,,,,,,,,
+home,metric,metric,4,,,Doable tomorrow,Tone of the proposal,,,,,,,,
+home,card,card,1,Today,No usage or product reality in the same view,"Today, customer-facing teams do not have one place where account history, CRM context, usage reality, and product signals come together. Reps work across messy Salesforce data, local files, and scattered notes without a clear view of what is actually happening with the customer.",,,,,,,,,
+home,card,card,2,Gap,Manual whitespace and uneven renewal readiness,"Whitespace analysis is still manual, and renewal preparation is inconsistent. That means JAGGAER risks missing the right expansion moment, reacting too late to lagging accounts, and creating avoidable frustration for both reps and customers.",,,,,,,,,
+home,card,card,3,Future State,An elevator to the right next floor,"Instead of climbing through disconnected systems, Elevator brings the rep to the right floor immediately: customer context, next best action, whitespace insight, historical knowledge, and executive-ready outputs in one place.",,,,,,,,,
+home,media,media,1,Page Media,Home page media slot,"Add a leadership summary slide, opening visual, or intro video URL here.",,,,,,,image,,Optional home page media URL
+overview,hero,hero,1,Overview,The proposal is simple: customer data + agent layer + playbooks,"JAGGAER Elevator is built on a straightforward idea. If JAGGAER creates a smart RAG per customer and places a lightweight agent layer on top, customer-facing teams become more aligned, better informed, and more capable of acting at the right time. The outcome is stronger retention, better health, and more targeted expansion.",,,,,,,,,
+overview,card,card,1,Foundation,Customer RAG per customer,"At the center of the proposal is a customer-specific RAG. It stores and retrieves the real customer story: how implementation went, why the customer is configured a certain way, what pain points emerged, what compliance challenges matter, what was recommended before, and what internal teams have learned over time.",,,,,,,,,
+overview,card,card,2,Agent Layer,Simple agents that learn and improve,"The RAG is not static. An agent layer sits on top of it and learns from customer outcomes across the base. Over time it gets better at identifying similar customers, detecting laggards, flagging risks, and generating stronger playbook formulas and next-best-action guidance.",,,,,,,,,
+overview,card,card,3,Playbook Engine,Signals turned into action,"Elevator uses JAGGAER playbooks and signal patterns to decide what should happen next. Instead of leaving expansion timing, renewal preparation, and adoption recovery to guesswork, the system helps teams move earlier and with more confidence.",,,,,,,,,
+overview,card,card,4,Practical Outcome,Built from what is already in front of us,"This is intentionally practical. The proposal does not depend on a fictional future platform. It is built from data and interactions that already exist across JAGGAER systems and can be organized into a smarter customer operating layer.",,,,,,,,,
+overview,media,media,1,Landscape Placeholder,Data landscape / flow chart placeholder,"Reserve this slot for the landscape flow chart you will provide later.",,,,,,,image,,Placeholder for landscape flow chart
+outputs,hero,hero,1,Outputs,What Elevator actually gives the business,"The value of JAGGAER Elevator is not just one dashboard. It is a set of practical outputs that help teams grow, support, retain, and manage customers more effectively.",,,,,,,,,
+outputs,card,card,1,Output 1,Whitespace identification with timing,"Elevator identifies whitespace across products, workflows, stakeholder groups, geographies, and use cases, then helps reps understand when to propose the right product to the right customer. This creates a more intelligent expansion motion than manual whitespace analysis.",,,,,,,,,
+outputs,card,card,2,Output 2,Historical customer knowledge,"Elevator lets reps ask direct questions and get grounded answers from the customer RAG. Example questions include: How did their implementation go? What was the last item the CSM recommended? Are they interested in Contracts AI?",,,,,,,,,
+outputs,card,card,3,Output 3,Proactive orchestration across teams,"Elevator orchestrates Sales, AEs, AMs, PS, Support, and CSM based on proactive signals from the playbook layer. The system helps teams coordinate around the next best move instead of operating in silos.",,,,,,,,,
+outputs,card,card,4,Additional outcomes,Similar customers, laggards, and risk flags,"Because the agent layer learns across the customer base, Elevator can also highlight similar customers, flag lagging accounts, surface risk patterns, and help teams learn from what success looks like elsewhere in the portfolio.",,,,,,,,,
+outputs,table_row,table,1,,,,,Output,What it provides,Primary teams,Business outcome,,,,
+outputs,table_row,table,2,,,,,Whitespace analysis,Expansion opportunities with explanation and timing,"Sales, AEs, AMs, Leadership",Revenue and installed-base growth,,,,
+outputs,table_row,table,3,,,,,Historical knowledge,RAG-powered answers and account memory,"AMs, PS, Support, CSMs",Faster prep and better customer conversations,,,,
+outputs,table_row,table,4,,,,,Playbook orchestration,Next-best-action guidance across teams,"Sales, AEs, AMs, PS, Support, CSMs",Better synchronization and healthier customer motion,,,,
+outputs,media,media,1,Page Media,Outputs page media slot,"Add a mockup, screenshot, or demo video URL here.",,,,,,,image,,Optional outputs page media URL
+details,hero,hero,1,Details,What goes into the Customer RAG + Agent Layer,"Elevator is powered by the systems JAGGAER already uses plus the customer interactions teams generate every day. The value comes from connecting those sources into one customer intelligence layer instead of leaving them fragmented.",,,,,,,,,
+details,card,card,1,Inputs,Connected data sources,"JAGGAER Engage, Production Data, Salesforce, Emails, Meetings, Internal Documents, Pendo, Contracts, and more all contribute to the customer RAG. The goal is not just aggregation. The goal is usable context.",,,,,,,,,
+details,card,card,2,Example signal,Whitespace timing example,"Example: low invoice capture automation could trigger a recommendation to propose AppZen. Similar logic can be used to surface Contracts AI interest, low feature adoption, or stalled commercial expansion signals at the right moment.",,,,,,,,,
+details,card,card,3,Executive option,One-click leadership summary,"Elevator should also include an executive mode that generates an account summary for leaders with one click: current health, key risks, whitespace, recent actions, stakeholder picture, and the next recommended move.",,,,,,,,,
+details,card,card,4,Search,Question-based retrieval for reps,"Reps should be able to type questions directly into the system and receive grounded answers from the customer RAG instead of manually searching across systems and personal files.",,,,,,,,,
+details,table_row,table,1,,,,,Source,What it contributes,Why it matters,Included in proposal,,,,
+details,table_row,table,2,,,,,JAGGAER Engage,Customer engagement context,Improves account narrative,Yes,,,,
+details,table_row,table,3,,,,,Production Data,Usage and product reality,Shows what is actually happening,Yes,,,,
+details,table_row,table,4,,,,,Salesforce,CRM and commercial context,Supports account planning and renewal prep,Yes,,,,
+details,table_row,table,5,,,,,Emails + Meetings,Conversation history,Captures recommendations and sentiment,Yes,,,,
+details,table_row,table,6,,,,,Internal Documents + Contracts,Historical and compliance context,Explains setup and constraints,Yes,,,,
+details,table_row,table,7,,,,,Pendo + more,Feature adoption and behavior,Supports product and playbook signals,Yes,,,,
+details,media,media,1,Landscape Placeholder,Architecture / landscape slot,"Reserve this slot for the full landscape flow chart or architecture image you will provide.",,,,,,,image,,Placeholder for landscape image
+impact,hero,hero,1,Business Impact,The business case: better revenue motion and better team execution,"JAGGAER Elevator creates value in two ways at the same time. It helps teams save time by reducing manual reconstruction of customer context, and it supports revenue by improving whitespace timing, renewal readiness, and coordinated customer action.",,,,,,,,,
+impact,metric,metric,1,,,Expansion + Revenue,Primary growth story,,,,,,,,
+impact,metric,metric,2,,,Historical knowledge,Primary productivity story,,,,,,,,
+impact,metric,metric,3,,,Playbook orchestration,Primary synchronization story,,,,,,,,
+impact,metric,metric,4,,,$1.2M,Approximate annual blended value opportunity,,,,,,,,
+impact,card,card,1,Revenue Impact,Smarter whitespace and better timing,"When whitespace is identified automatically and paired with signals from usage, product adoption, and account context, reps can propose the right product at the right time instead of relying on manual review.",,,,,,,,,
+impact,card,card,2,Efficiency Impact,Less searching, more informed action,"When historical customer knowledge is available instantly through the RAG, teams spend less time chasing context and more time preparing meaningful customer interactions.",,,,,,,,,
+impact,card,card,3,Synchronization Impact,One coordinated customer motion,"When playbook signals orchestrate the right teams around the right next move, handoffs improve, renewal prep becomes more consistent, and customer frustration is reduced.",,,,,,,,,
+impact,table_row,table,1,,,,,Value lever,What improves,How JAGGAER benefits,Primary teams impacted,,,,
+impact,table_row,table,2,,,,,Whitespace identification,Expansion timing and product fit,More revenue focus inside the installed base,"Sales, AEs, AMs, Leadership",,,,
+impact,table_row,table,3,,,,,Historical knowledge,Customer memory and prep quality,Faster and smarter interactions,"AMs, PS, Support, CSMs",,,,
+impact,table_row,table,4,,,,,Playbook orchestration,Alignment across customer-facing teams,Stronger retention and health execution,"Sales, AEs, AMs, PS, Support, CSMs",,,,
+impact,media,media,1,Page Media,Impact page media slot,"Add a business case chart, slide, or supporting video URL here.",,,,,,,image,,Optional impact page media URL
+sitemap,hero,hero,1,Sitemap,How the proposal is organized,"This single-site proposal is organized to move from leadership framing to practical detail: Home, Overview, Outputs, Details, Business Impact, and Sitemap.",,,,,,,,,
+sitemap,card,card,1,Page 1,Home,The leadership story and the core problem JAGGAER Elevator solves.,,,,,,,,,
+sitemap,card,card,2,Page 2,Overview,The Customer RAG + Agent Layer model and why it is practical.,,,,,,,,,
+sitemap,card,card,3,Page 3,Outputs,Whitespace, historical knowledge, orchestration, and learning outcomes.,,,,,,,,,
+sitemap,card,card,4,Page 4,Details,Data sources, examples, executive mode, and architecture placeholder.,,,,,,,,,
+sitemap,card,card,5,Page 5,Business Impact,How the idea drives retention, expansion, and health.,,,,,,,,,
+sitemap,card,card,6,Page 6,Sitemap,Page map and review structure.,,,,,,,,,
+sitemap,media,media,1,Page Media,Sitemap page media slot,"Add an optional closing image, thumbnail, or video URL here.",,,,,,,image,,Optional sitemap page media URL`;
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [];
+      let value = "";
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i += 1) {
+        const char = text[i];
+        const next = text[i + 1];
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            value += '"';
+            i += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === "," && !inQuotes) {
+          row.push(value);
+          value = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (char === "\r" && next === "\n") i += 1;
+          row.push(value);
+          value = "";
+          if (row.some((cell) => cell !== "")) rows.push(row);
+          row = [];
+        } else {
+          value += char;
+        }
+      }
+      if (value.length || row.length) {
+        row.push(value);
+        rows.push(row);
+      }
+      const [headers, ...dataRows] = rows;
+      return dataRows.map((dataRow) => {
+        const obj = {};
+        headers.forEach((header, index) => {
+          obj[header] = dataRow[index] || "";
+        });
+        obj.sort = Number(obj.sort || 0);
+        return obj;
+      });
+    }
+
+    function badgeMarkup(text) {
+      return text ? `<span class="badge">${text}</span>` : "";
+    }
+
+    function renderMedia(item) {
+      const title = item.title || "Media slot";
+      const body = item.body || "";
+      const caption = item.media_caption || "";
+      let mediaHtml = `<div class="media-placeholder">No media URL yet. Add a URL in the content sheet to populate this slot.</div>`;
+      if (item.media_url) {
+        if (item.media_type === "image") {
+          mediaHtml = `<div class="media-slot"><img src="${item.media_url}" alt="${title}"></div>`;
+        } else if (item.media_type === "video") {
+          mediaHtml = `<div class="media-slot"><video controls preload="metadata" src="${item.media_url}"></video></div>`;
+        } else if (item.media_type === "embed") {
+          mediaHtml = `<div class="media-slot"><iframe src="${item.media_url}" title="${title}" frameborder="0" allowfullscreen></iframe></div>`;
+        }
+      }
+      return `
+        <section class="media-card">
+          ${badgeMarkup(item.badge)}
+          <h3>${title}</h3>
+          <p>${body}</p>
+          ${mediaHtml}
+          ${caption ? `<p>${caption}</p>` : ""}
+        </section>
+      `;
+    }
+
+    function tableTitle(page) {
+      if (page === "outputs") return "Outputs Summary";
+      if (page === "details") return "Source Summary";
+      if (page === "impact") return "Business Impact Table";
+      return "Table";
+    }
+
+    function renderPage(page, items) {
+      const hero = items.find((item) => item.kind === "hero");
+      const metrics = items.filter((item) => item.kind === "metric").sort((a, b) => a.sort - b.sort);
+      const cards = items.filter((item) => item.kind === "card").sort((a, b) => a.sort - b.sort);
+      const tableRows = items.filter((item) => item.kind === "table_row").sort((a, b) => a.sort - b.sort);
+      const media = items.filter((item) => item.kind === "media").sort((a, b) => a.sort - b.sort);
+      const target = document.getElementById(`page-${page}`);
+      if (!target || !hero) return;
+
+      const tableHtml = tableRows.length ? `
+        <section class="table-card">
+          <h3>${tableTitle(page)}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>${tableRows[0].col1 || ""}</th>
+                <th>${tableRows[0].col2 || ""}</th>
+                <th>${tableRows[0].col3 || ""}</th>
+                <th>${tableRows[0].col4 || ""}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows.slice(1).map((row) => `
+                <tr>
+                  <td>${row.col1 || ""}</td>
+                  <td>${row.col2 || ""}</td>
+                  <td>${row.col3 || ""}</td>
+                  <td>${row.col4 || ""}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </section>
+      ` : "";
+
+      target.innerHTML = `
+        <header class="page-header">
+          <div class="breadcrumb">${page}</div>
+          <h1>${hero.title}</h1>
+          <p>${hero.body}</p>
+        </header>
+        <section class="stack">
+          ${metrics.length ? `
+            <div class="grid-4">
+              ${metrics.map((metric) => `
+                <div class="metric-card">
+                  <div class="metric-value">${metric.value}</div>
+                  <div class="metric-label">${metric.body || metric.note || ""}</div>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+          ${cards.length ? `
+            <div class="${cards.length >= 4 ? "grid-2" : "grid-3"}">
+              ${cards.map((card) => `
+                <article class="card">
+                  ${badgeMarkup(card.badge)}
+                  <h3>${card.title}</h3>
+                  <p>${card.body}</p>
+                </article>
+              `).join("")}
+            </div>
+          ` : ""}
+          ${tableHtml}
+          ${media.map(renderMedia).join("")}
+        </section>
+      `;
+    }
+
+    function renderAll(items) {
+      pages.forEach((page) => renderPage(page, items.filter((item) => item.page === page)));
+    }
+
+    async function loadDefaultCsv() {
+      renderAll(parseCsv(embeddedCsv));
+      try {
+        const response = await fetch("content.csv");
+        if (!response.ok) return;
+        const text = await response.text();
+        renderAll(parseCsv(text));
+      } catch (error) {
+        // file:// fallback uses embedded CSV
+      }
+    }
+
+    document.querySelectorAll(".nav-link").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".nav-link").forEach((link) => link.classList.remove("active"));
+        document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(`page-${button.dataset.page}`).classList.add("active");
+      });
+    });
+
+    document.getElementById("csv-upload").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      renderAll(parseCsv(text));
+    });
+
+    loadDefaultCsv();
+  </script>
+</body>
+</html>
